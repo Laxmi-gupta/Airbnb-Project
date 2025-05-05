@@ -5,14 +5,16 @@ const wrapAsync = require('../utils/wrapAsync.js');
 const ExpressError = require('../utils/ExpressError.js');
 const Listing = require('../models/listing.js');
 const Review = require('../models/review.js');
-const {validateReview} = require('../middleware.js');
+const {validateReview, isLoggedIn, isReviewAuthor} = require('../middleware.js');
 
 // reviews -> create route
-router.post('/',validateReview,wrapAsync(async (req,res) => {
+router.post('/',isLoggedIn,validateReview,wrapAsync(async (req,res) => {
   let {id} = req.params;
   let listing = await Listing.findById(id);
   let newReview = new Review(req.body.review);
+  newReview.author = req.user._id;
   listing.review.push(newReview);
+
   await listing.save();  // only saves the id
   await newReview.save(); // saves the actual review doc.
   req.flash("success","New Review Created");
@@ -20,7 +22,7 @@ router.post('/',validateReview,wrapAsync(async (req,res) => {
 }));
 
 // reviews -> delete route
-router.delete('/:reviewId',wrapAsync(async (req,res) => {
+router.delete('/:reviewId',isLoggedIn,isReviewAuthor,wrapAsync(async (req,res) => {
   let {id, reviewId} = req.params; 
   // pull operator -> fetch the reviewid from lisiting id and deletes it
   await Listing.findByIdAndUpdate(id, {$pull: {review: reviewId }});

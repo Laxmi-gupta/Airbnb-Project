@@ -25,7 +25,15 @@ router.get('/new',isLoggedIn, (req,res) => {
 // show specific only (Show route)
 router.get('/:id',wrapAsync(async (req,res) => {
   let {id} = req.params;
-  const listing = await Listing.findById(id).populate("review").populate("owner");
+  const listing = await Listing.findById(id)
+    //  replace object IDs (refs) in your actual documents 
+    .populate({ 
+      path: "review",
+      populate: {
+        path: "author",
+      }
+    })
+    .populate("owner");
   if(!listing) {
     req.flash("error","Listing is deleted");
     return res.redirect('/listings');
