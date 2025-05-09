@@ -1,9 +1,18 @@
+// to read .env file values -> use dotenv module which is required
+if(process.env.NODE_ENV != 'production') {   // since .env contains all imp credentials so we dont use in produnction phase after deployment we dont want the user to see it
+  require('dotenv').config();
+}
+                                                                   
 const express = require('express');
 const router = express.Router();
 const wrapAsync = require('../utils/wrapAsync.js');
 const ExpressError = require('../utils/ExpressError.js');
 const Listing = require('../models/listing.js');
 const {validateListing,isLoggedIn, isOwner} = require('../middleware.js');
+const multer = require('multer');       // to upload files
+const {storage} = require('../cloudConfig.js')
+// const upload = multer({dest: 'uploads/'});       // stores img files indide uploads folder
+const upload = multer({storage});       // stores img files indide cloudinary cloud
 
 const listingController = require('../controllers/listings.js');
 
@@ -19,7 +28,9 @@ const listingController = require('../controllers/listings.js');
 
 router.route('/')
   .get(wrapAsync(listingController.index))
-  .post(isLoggedIn, validateListing, wrapAsync(listingController.createListing));
+  // for new route we hv use enctype(send file to backend) 
+  //req.body -> dont return anything bcoz enctype ->we need to parse it for readble form by using multer-> req.file
+  .post(isLoggedIn, validateListing,upload.single('listing[image][url'), wrapAsync(listingController.createListing));
 
 // new route
 router.get('/new',isLoggedIn, listingController.newForm);

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Listing = require('../models/listing.js');
-const initdata = require('./data');
+const initdata = require('./sampledata');
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlustNew";
 

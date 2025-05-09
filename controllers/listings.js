@@ -33,6 +33,7 @@ module.exports.createListing = async (req,res) =>{
     //   throw new ExpressError(400,'Send valid data for listing');
     // }
     const newListing = new Listing(req.body.listing);
+    console.log(newListing);
     newListing.owner = req.user._id;
     await newListing.save();
     req.flash("success","New Listing Created");
