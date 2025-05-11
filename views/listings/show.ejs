@@ -1,5 +1,11 @@
 <% layout('/layouts/boilerplate') %>
 
+<!--  so we hv put it at top now it stores token and at down we can access it -->
+<script>
+  let mapApi = "<%= process.env.MAP_API_KEY %>";
+    let locationName = "<%= listing.location %>"
+</script>
+
 <div class="row">
   <div class="col-6 offset-3 mt-3">
     <h3 class="mt-3"><%= listing.title %></h3>
@@ -72,24 +78,34 @@
 
     <!-- display all reviews -->
     
-    <h5 class="card-header">All Reviews</h5>
-    <div class="row">
-      <% for(review of listing.review) { %> 
-        <div class="card mt-2 mb-3 ms-3 col-5">
-          <div class="card-body ">
-            <h5 class="card-title">@<%= review.author.username %></h5>
-            <!-- statically display -->
-            <p class="starability-result card-text" data-rating="<%= review.rating %>"> Rated: 3 stars</p>   
-            <p class="card-text mt-2"><%= review.comment %> </p>        
+    <% if(listing.review.length > 0) { %>
+      <div class="row">
+        <p class="card-header mb-2 ms-3"><b>All Reviews</b></p>
+        <% for(review of listing.review) { %> 
+          <div class="card mt-2 mb-3 ms-3 col-5">
+            <div class="card-body ">
+              <h5 class="card-title">@<%= review.author.username %></h5>
+              <!-- statically display -->
+              <p class="starability-result card-text" data-rating="<%= review.rating %>"> Rated: 3 stars</p>   
+              <p class="card-text mt-2"><%= review.comment %> </p>        
+            </div>
+            <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE " method="post">
+              <button class="btn btn-sm btn-dark mt-2 mb-3">Delete</button>
+            </form>
           </div>
-          <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE " method="post">
-            <button class="btn btn-sm btn-dark mt-2 mb-3">Delete</button>
-          </form>
-        </div>
-      <% } %>
-    </div>
+        <% } %> 
+      </div>
+      <hr>
+    <% } %>  
+  </div>
+  
+  <!-- display map -->
+  <div class="col-6 offset-3 mt-2 mb-3">
+    <h3>Where you'll be</h3>
+    <div id="map"></div>  
   </div>
 </div>
 
-
+<!-- now it has token we can use it in map.js file -->
+<script src="/js/map.js"></script>
 

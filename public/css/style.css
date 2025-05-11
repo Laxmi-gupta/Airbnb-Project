@@ -118,3 +118,9 @@ body {
 .show-edit {
   text-decoration: none !important;
 }
+
+/* map */
+#map {
+  height: 400px;
+  width: 600px;
+}
