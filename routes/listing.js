@@ -30,7 +30,7 @@ router.route('/')
   .get(wrapAsync(listingController.index))
   // for new route we hv use enctype(send file to backend) 
   //req.body -> dont return anything bcoz enctype ->we need to parse it for readble form by using multer-> req.file
-  .post(isLoggedIn, validateListing,upload.single('listing[image][url'), wrapAsync(listingController.createListing));
+  .post(isLoggedIn, validateListing,upload.single('listing[image]'), wrapAsync(listingController.createListing));
 
 // new route
 router.get('/new',isLoggedIn, listingController.newForm);
@@ -40,7 +40,7 @@ router.get('/new',isLoggedIn, listingController.newForm);
 
 router.route('/:id')
   .get(wrapAsync(listingController.showListing))
-  .put(isLoggedIn,validateListing,wrapAsync(listingController.editListing))
+  .put(isLoggedIn,isOwner,upload.single('listing[image]'),validateListing,wrapAsync(listingController.editListing))
   .delete(isLoggedIn,isOwner, wrapAsync(listingController.destroyListing));
 
 // to edit the listing (Edit route)
