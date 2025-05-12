@@ -1,4 +1,6 @@
 const Listing = require('../models/listing');
+const { geocoding,config } = require('@maptiler/client');
+config.apiKey = process.env.MAP_API_KEY;
 
 // module.exports is an object with index as a property.
 module.exports.index = async (req,res) => {
@@ -25,6 +27,15 @@ module.exports.showListing = async (req,res) => {
     req.flash("error","Listing is deleted");
     return res.redirect('/listings');
   }
+
+  // since previous listing do not hv geometry so we hv put condition if geometry is not defined only for that store in db else dont store
+  if (!listing.geometry || !listing.geometry.coordinates || listing.geometry.coordinates.length === 0) {
+    // for geocoding converting loc to coords and storing in db
+    let response = await geocoding.forward(listing.location,{limit: 1});
+    // this will store cordinated in db
+    listing.geometry = response.features[0].geometry;
+    await listing.save();
+  }
   res.render('listings/show.ejs', {listing});
 }
 
@@ -33,9 +44,13 @@ module.exports.createListing = async (req,res) =>{
     //   throw new ExpressError(400,'Send valid data for listing');
     // }
 
+    // for geocoding converting loc to coords and storing in db
+    let response = await geocoding.forward(req.body.listing.location,{limit: 1});
     // fetches url from cloudinary 
     const newListing = new Listing(req.body.listing);
     newListing.owner = req.user._id;
+    // this will store cordinated in db
+    newListing.geometry = response.features[0].geometry;
     if(req.file) {
       let url = req.file.path;
       let filename = req.file.filename;
@@ -44,7 +59,6 @@ module.exports.createListing = async (req,res) =>{
     else {
       newListing.image.url = "https://images.unsplash.com/photo-1721132447246-5d33f3008b05?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
       newListing.filename = "default-img"
-      
     }
     await newListing.save();
     req.flash("success","New Listing Created");

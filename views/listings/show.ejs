@@ -3,7 +3,9 @@
 <!--  so we hv put it at top now it stores token and at down we can access it -->
 <script>
   let mapApi = "<%= process.env.MAP_API_KEY %>";
-    let locationName = "<%= listing.location %>"
+  // let locationName = "<%= listing.location %>" no need bcoz we need to store the cordinates 
+  // everytime loaction rendering will take much time
+  let listing = <%- JSON.stringify(listing) %>;  // takes only string
 </script>
 
 <div class="row">
