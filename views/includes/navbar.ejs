@@ -6,12 +6,22 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link active" aria-current="page" href="/signup">Home</a>
-        <a class="nav-link" href="/listings">All listings</a>
-        <a class="nav-link" href="/listings/new">Add new listing</a>
+        <a class="nav-link" href="/listings">Explore</a>
+      </div>
+
+      <div class="ms-auto">
+        <form class="d-flex" role="search">
+          <input class="form-control me-2 search-inp" type="search" placeholder="Search destinations" >
+          <button class="btn css-btn-search" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Search
+          </button>
+          
+        </form>
       </div>
 
       <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="/listings/new">Airbnb your home</a>
         <!-- < if(!req.user) {} %> this will give error->instead of this we can store it in locals --> 
         <!-- this teels if user is login then it will return obj then on page we can only see logout -->
         <% if(!user) { %>
