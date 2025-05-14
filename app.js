@@ -101,6 +101,11 @@ app.use((req,res,next) => {
 //   res.send(registeredUser);
 // })
 
+// bcoz after deployng its redirect to / we dont need that  
+app.get('/', (req, res) => {
+  res.redirect('/listings');
+});
+
 // from these our all listing routes are combingin from routes/ lisiting.js
 app.use('/listings',listingRouter);
 
