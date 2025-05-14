@@ -42,7 +42,7 @@ app.use(express.static(path.join(__dirname,'/public')));
 const store = MongoStore.create({
   mongoUrl: dbUrl,
   crypto: { 
-    secret: 'mysecretcode',
+    secret: process.env.SECRET,
   },
   touchAfter: 24 * 3600,
 })
@@ -55,7 +55,7 @@ store.on('error',(err) => {
 // for express session 
 let sessionOptions = {
   store,                      // tells express-session to use MongoDB instead of memory
-  secret: "mysecretcode",
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   // more cookie options
