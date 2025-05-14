@@ -5,6 +5,7 @@ const path = require('path');
 const method_override = require('method-override');
 const ejs_mate = require('ejs-mate');
 const session = require('express-session');
+const MongoStore = require('connect-mongo'); // stores session related data
 const flash = require('connect-flash');          // to display messages like toaster
 const passport = require('passport');             // authentication
 const LocalStrategy = require('passport-local');
@@ -14,14 +15,15 @@ const listingRouter = require('./routes/listing.js');     // express router simp
 const reviewRouter = require('./routes/review.js');
 const userRouter = require('./routes/user.js');
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlustNew";
+// const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlustNew";
+const dbUrl = process.env.ATLASDB_URL;
 
 main()
   .then(() => console.log("Connection succesfull"))
   .catch((err) => console.log("Connection error",err)); 
 
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dbUrl);
 };
 
 // for ejs
@@ -31,13 +33,28 @@ app.set('views',path.join(__dirname,'views'));
 app.use(express.urlencoded({extended: true}));
 // override
 app.use(method_override("_method"));
-// ejs
+// ejs-mate
 app.engine('ejs',ejs_mate);  
 // for css public folder
 app.use(express.static(path.join(__dirname,'/public')));
 
+// this stores the session in mongo
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto: { 
+    secret: 'mysecretcode',
+  },
+  touchAfter: 24 * 3600,
+})
+
+// to show error in console
+store.on('error',(err) => {
+  console.log("Error in mongo session store",err);
+});
+
 // for express session 
 let sessionOptions = {
+  store,                      // tells express-session to use MongoDB instead of memory
   secret: "mysecretcode",
   resave: false,
   saveUninitialized: true,
