@@ -15,7 +15,7 @@ A full-stack **Airbnb-style web app** built with **Node.js, Express, MongoDB, an
 - **Image Uploads:** Cloudinary
 - **Deployment:** Render
 
-## 🚀 Features
+## Features
 
 - User Signup/Login
 - Create & Manage Listings
@@ -23,7 +23,7 @@ A full-stack **Airbnb-style web app** built with **Node.js, Express, MongoDB, an
 - Leave Reviews
 - Authentication & Authorization
 
-## 🧑‍💻 Author
+## Author
 
 Laxmi Gupta  
 [GitHub](https://github.com/Laxmi-gupta)
