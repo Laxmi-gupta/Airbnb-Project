@@ -4,7 +4,8 @@ module.exports.signup = async (req,res) => {
    try { 
     let {username,email,password} = req.body;
     const newUser = new User({email,username});
-    const registeredUser = await User.register(newUser,password);
+    // register() comes from passport localMongoose it adds the pswd by hashing and salting and also checks that no 2 person have the same username like instagram
+    const registeredUser = await User.register(newUser,password);       
     req.login(registeredUser,(err) => {
       if(err)  {
         return next(err);

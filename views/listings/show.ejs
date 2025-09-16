@@ -15,7 +15,11 @@
       <img src="<%= listing.image.url %>" class="card-img-top css-show-img" alt="image">
       <div class="card-body">
         <p class="card-text">
-          <b><i>Owned by: <%= listing.owner.username %></i></b> <br>
+          <% if (listing.owner && listing.owner.username) { %>
+            <b><i>Owned by: <%= listing.owner.username %></i></b> <br>
+          <% } else { %>
+            <b><i>Owner: Not Available</i></b> <br> 
+          <% } %>
           <%= listing.description %> <br>
           <!-- conevrt it into indian rupee -> toLocaleString -->
           &#8377; <%= listing.price.toLocaleString('en-IN') %> <br>
@@ -100,6 +104,22 @@
       <hr>
     <% } %>  
   </div>
+
+  <!-- booking card -->
+  <div class="card text-center" style="width: 20rem; height: 14rem;">
+    <div class="card-body">
+      <h5 class="card-title">  &#8377; <%= listing.price.toLocaleString('en-IN') %>/night</h5>
+      <form action="/listings/<%= listing._id %>/booking" novalidate class="needs-validation">
+        <div class="border p-2">
+          <input name="checkin" id="check-in" type="text" class="form-control" placeholder="check-in" required>
+          <div class="invalid-feedback">Choose valid check-in date</div>
+          <input type="text" name="checkout" placeholder="checkout" class="form-control" id="checkout" required>
+          <div class="invalid-feedback">Choose valid checkout date</div> <br>
+        </div>
+        <button>Reserve</button>
+      </form>
+    </div>
+  </div>
   
   <!-- display map -->
   <div class="col-6 offset-3 mt-2 mb-3">
@@ -110,4 +130,5 @@
 
 <!-- now it has token we can use it in map.js file -->
 <script src="/js/map.js"></script>
+<script> window.disableDates = <%- JSON.stringify(disableDates) %>;</script>
 

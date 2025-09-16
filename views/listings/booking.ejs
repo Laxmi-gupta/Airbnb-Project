@@ -1,0 +1,46 @@
+<div>
+  <div>
+    <h2>Confirm and Pay</h2>
+  </div>
+
+  <div>
+    <h4>Your Trip</h4>
+    <p>Dates</p>
+    <p><%= new Date(checkin).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) %> - <%= new Date(checkout).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })%></p>
+  </div>
+  <hr>
+  <div><h3>Ground rules</h3>
+    <p>We ask every guest to remember a few simple things about what makes a great guest.</p>
+    <ul>
+    <li>Follow the house rules</li>
+    <li>Treat your Host’s home like your own</li></ul>
+  </div>
+  <hr>
+
+  <div class="right">
+    <div class="card">
+      <div class="card-body">
+        <img src="<%= listing.image.url %>" alt="">
+        <h3><%= listing.title %></h3>
+        <hr>
+        <h4>Your total</h4>
+        <p><b>Price details</b></p>
+        <p><%= Math.round((new Date(checkout) - new Date(checkin))/ (1000 * 60 * 60 * 24)) %> nights x <%= listing.price %>      </p>
+        <hr>
+        <p><b>Total(INR)     </b></p>
+      </div>
+
+    </div>
+  </div>
+
+  <form action="">
+    <div>
+      <h3>Required for your trip</h3>
+      <p>Phone number
+      <button>Add</button> <br></p>   
+      <p>Add and confirm your phone number to get trip updates.</p>
+    </div>
+    
+    <button>Continue</button>
+  </form>
+</div>

@@ -6,8 +6,6 @@ if(process.env.NODE_ENV != 'production') {   // since .env contains all imp cred
 const express = require('express');
 const router = express.Router();
 const wrapAsync = require('../utils/wrapAsync.js');
-const ExpressError = require('../utils/ExpressError.js');
-const Listing = require('../models/listing.js');
 const {validateListing,isLoggedIn, isOwner} = require('../middleware.js');
 const multer = require('multer');       // to upload files
 const {storage} = require('../cloudConfig.js')
@@ -26,14 +24,14 @@ const listingController = require('../controllers/listings.js');
 //Hamesha specific/static routes (like /listings/new) ko upar rakho
 //aur dynamic routes (like /listings/:id) ko baad mein likho.
 
-router.route('/')
+router.route('/')           // multiple routes
   .get(wrapAsync(listingController.index))
   // for new route we hv use enctype(send file to backend) 
   //req.body -> dont return anything bcoz enctype ->we need to parse it for readble form by using multer-> req.file
-  .post(isLoggedIn, validateListing,upload.single('listing[image]'), wrapAsync(listingController.createListing));
+  .post(isLoggedIn,upload.single('listing[image]'),validateListing, wrapAsync(listingController.createListing));
 
 // new route
-router.get('/new',isLoggedIn, listingController.newForm);
+router.get('/new',isLoggedIn, listingController.newForm);    // for single route
 
 // to save the data in db (Create route)
 // router.post('/', isLoggedIn, validateListing, wrapAsync(listingController.createListing));
@@ -54,5 +52,8 @@ router.get('/:id/edit',isLoggedIn,isOwner,wrapAsync(listingController.editForm))
 
 // delete route
 // router.delete('/:id', isLoggedIn,isOwner, wrapAsync(listingController.destroyListing));
+
+// booking get route
+router.get('/:id/booking',listingController.showBooking);
 
 module.exports = router;

@@ -1,11 +1,18 @@
 const Listing = require('../models/listing');
+const Booking = require('../models/booking');
 const { geocoding,config } = require('@maptiler/client');
 config.apiKey = process.env.MAP_API_KEY;
 
 // module.exports is an object with index as a property.
 module.exports.index = async (req,res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", {allListings});
+  const searchDestination = req.query.searchDestination;
+  let allListings;
+  if(searchDestination) {
+    allListings = await Listing.find({country: {$regex: searchDestination, $options: "i"}});
+  } else {
+    allListings = await Listing.find();
+  }
+  res.render("listings/index.ejs", {allListings}); 
 }
 
 module.exports.newForm = (req,res) => {
@@ -23,6 +30,7 @@ module.exports.showListing = async (req,res) => {
       }
     })
     .populate("owner");
+  console.log(listing);
   if(!listing) {
     req.flash("error","Listing is deleted");
     return res.redirect('/listings');
@@ -36,7 +44,14 @@ module.exports.showListing = async (req,res) => {
     listing.geometry = response.features[0].geometry;
     await listing.save();
   }
-  res.render('listings/show.ejs', {listing});
+
+  // for disabling booked dates
+  let bookedListing = await Booking.find({listing: id});
+  let disableDates = bookedListing.map((booking) => ({
+    from: booking.checkin.toISOString().split("T")[0],
+    to: booking.checkout.toISOString().split("T")[0]
+  }));
+  res.render('listings/show.ejs', {listing, disableDates});
 }
 
 module.exports.createListing = async (req,res) =>{
@@ -95,4 +110,18 @@ module.exports.destroyListing = async (req,res) => {
   await Listing.findByIdAndDelete(id);
   req.flash("success","Listing deleted");
   res.redirect('/listings');
+}
+
+module.exports.showBooking = async(req,res) => {
+  let {id} = req.params;
+  const listing = await Listing.findById(id);
+  let {checkin,checkout} = req.query;
+
+  let book = new Booking({
+    listing: id,
+    checkin,
+    checkout,
+  })
+  // await book.save();
+  res.render("listings/booking.ejs", {checkin,checkout,listing});
 }

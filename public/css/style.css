@@ -167,7 +167,6 @@ body {
   color: white !important;
   width: 150px;
   border-radius: 20px !important;
-  padding: 1rem;
 }
 
 .css-btn-search i {
@@ -175,6 +174,8 @@ body {
 }
 
 .search-inp {
-  border-radius: 20px !important;
-  padding: 0.5rem 6rem !important;
+  /* border-radius: 20px !important;
+  padding: 0.5rem 6rem !important; */
+  border: none !important;
+  padding: 0 !important;
 }

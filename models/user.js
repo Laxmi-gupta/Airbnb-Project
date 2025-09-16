@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const passportLocalMongoose = require('passport-local-mongoose')
+const passportLocalMongoose = require('passport-local-mongoose')  // for authentication
 
 const userSchema = new Schema({
   email: {
@@ -9,7 +9,7 @@ const userSchema = new Schema({
   }
 });
 
-// utomatically adds authentication-related fields and methods 
+// automatically adds authentication-related fields(username,password-> salt,hash) and methods   
 userSchema.plugin(passportLocalMongoose);
 
 module.exports =  mongoose.model("User",userSchema);

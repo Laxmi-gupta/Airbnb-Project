@@ -4,11 +4,12 @@ const User = require('../models/user.js');
 const passport = require('passport');
 const { saveRedirectUrl } = require('../middleware.js');
 
-const userController = require('../controllers/users.js')
+const userController = require('../controllers/users.js');
+const wrapAsync = require('../utils/wrapAsync.js');
 
 router.route('/signup')
   .get(userController.renderSignupForm)
-  .post(userController.signup);
+  .post(wrapAsync(userController.signup));
 
 router.route('/login')
   .get(userController.renderLoginForm)

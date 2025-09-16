@@ -27,9 +27,8 @@ const validateReview = (req,res,next) => {
 
 isLoggedIn = (req,res,next) => {
   // we need to check if the user is logged in then he can create listing
-  // console.log(req.user);
-  req.session.redirectUrl = req.originalUrl;
   if(!req.isAuthenticated()) {
+    req.session.redirectUrl = req.originalUrl;
     req.flash("error","You must be logged in to create new listing");
     return res.redirect('/login');
   }
