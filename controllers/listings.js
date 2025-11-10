@@ -1,17 +1,57 @@
+if(process.env.NODE_ENV != 'production') {
+  require('dotenv').config(); 
+}
+
 const Listing = require('../models/listing');
 const Booking = require('../models/booking');
 const { geocoding,config } = require('@maptiler/client');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 config.apiKey = process.env.MAP_API_KEY;
 
 // module.exports is an object with index as a property.
 module.exports.index = async (req,res) => {
-  const searchDestination = req.query.searchDestination;
+  const { searchDestination, checkIn, checkOut } = req.query;
   let allListings;
+
+  // Step 1️⃣: Base filter (country/location)
+  const query = {};
   if(searchDestination) {
-    allListings = await Listing.find({country: {$regex: searchDestination, $options: "i"}});
-  } else {
-    allListings = await Listing.find();
+    // allListings = await Listing.find({
+       query.$or =  [{
+        country: {$regex: searchDestination, $options: "i"}},
+        {
+          location: {$regex: searchDestination, $options: "i"}
+        }]
+     // });
+  } 
+
+  // Step 2️⃣: Get all listings matching city/location
+  allListings = await Listing.find(query);
+
+  // Step 3️⃣: If user selected check-in and check-out
+  if (checkIn && checkOut) {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    // Step 4️⃣: Find bookings that overlap
+    const bookedListings = await Booking.find({
+      $or: [
+        {
+          checkin: { $lt: checkOutDate },
+          checkout: { $gt: checkInDate },
+        },
+      ],
+    }).select("listing");
+
+    // Step 5️⃣: Get booked listing IDs
+    const bookedListingIds = bookedListings.map(b => b.listing.toString());
+
+    // Step 6️⃣: Filter out booked listings
+    allListings = allListings.filter(
+      l => !bookedListingIds.includes(l._id.toString())
+    );
   }
+
   res.render("listings/index.ejs", {allListings}); 
 }
 
@@ -30,7 +70,6 @@ module.exports.showListing = async (req,res) => {
       }
     })
     .populate("owner");
-  console.log(listing);
   if(!listing) {
     req.flash("error","Listing is deleted");
     return res.redirect('/listings');
@@ -55,10 +94,6 @@ module.exports.showListing = async (req,res) => {
 }
 
 module.exports.createListing = async (req,res) =>{
-    // if(!req.body.listing) {
-    //   throw new ExpressError(400,'Send valid data for listing');
-    // }
-
     // for geocoding converting loc to coords and storing in db
     let response = await geocoding.forward(req.body.listing.location,{limit: 1});
     // fetches url from cloudinary 
@@ -124,4 +159,70 @@ module.exports.showBooking = async(req,res) => {
   })
   // await book.save();
   res.render("listings/booking.ejs", {checkin,checkout,listing});
+}
+
+module.exports.makePayment = async (req, res) => {
+    const {id} = req.params;
+    const listing = await Listing.findById(id); 
+    const { checkin, checkout,cardno,expiry,cvv} = req.body;
+    let user = res.locals.user;
+    const nights = (new Date(checkout) - new Date(checkin))/(1000*60*60*24);
+    const totalPrice = nights * listing.price;
+    
+    // make payment through stripe
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: [{
+        price_data: {
+          currency: "inr",
+          product_data: {name: listing.title},
+          unit_amount: totalPrice * 100
+          },
+          quantity: 1,
+      }],
+      success_url: `${process.env.DOMAIN}/listings/${id}/success/?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${process.env.DOMAIN}/listings/${id}/cancel`
+    })
+    //console.log(session);
+    res.redirect(session.url);
+
+    const booking = new Booking({
+      listing: id,
+      checkin,
+      checkout,
+      user: user._id,
+      totalPrice,
+      stripeSessionId: session.id
+    })
+
+    await booking.save();
+}
+
+module.exports.showSuccessPayment = async(req,res) => {
+  const {session_id} = req.query;
+
+  if(!session_id) {
+    req.flash("error","Invalid payment");
+    return res.redirect('/listings');
+  }
+
+  const session = await stripe.checkout.sessions.retrieve(session_id);
+
+  const booking = await Booking.findOne({stripeSessionId: session_id});
+  if(!booking) {
+    req.flash("error", "Booking not found");
+    return res.redirect('/listings');
+  }
+
+  if(session.payment_status === 'paid') {
+    booking.paymentStatus = 'paid';
+    await booking.save();
+
+    req.flash("success","Payment Successful!! Booking Confirmed");
+  } else {
+    req.flash("error","Payment not completed");
+
+  }
+  return res.redirect("/listings")
 }

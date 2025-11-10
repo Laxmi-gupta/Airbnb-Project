@@ -21,24 +21,6 @@ router.route('/login')
       }),userController.login
     );
 
-// // sign up
-// router.get('/signup',userController.renderSignupForm);
-
-// router.post('/signup',userController.signup);
-
-// sign in
-// router.get('/login',userController.renderLoginForm);
-
-// authenticate using passport to check username,paaswd valid
-// also its a middle ware so we hv passed in btw
-// router.post('/login',
-//   saveRedirectUrl,
-//   passport.authenticate("local",{
-//     failureRedirect: '/login',
-//     failureFlash: true,
-//   }),userController.login
-// );
-
 // logout
 router.get('/logout',userController.logout);
 

@@ -18,17 +18,13 @@ const listingRouter = require('./routes/listing.js');     // express router simp
 const reviewRouter = require('./routes/review.js');
 const userRouter = require('./routes/user.js');
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
-
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlustNew";
-// const dbUrl = process.env.ATLASDB_URL;
 
 main()
   .then(() => console.log("Connection succesfull"))
   .catch((err) => console.log("Connection error",err)); 
 
 async function main() {
-  // change to dburl
   await mongoose.connect(MONGO_URL);
 };
 
@@ -42,7 +38,7 @@ app.use(method_override("_method"));
 // ejs-mate
 app.engine('ejs',ejs_mate);  
 // for css public folder
-app.use(express.static(path.join(__dirname,'/public')));
+app.use(express.static(path.join(__dirname,'public')));
 
 // this stores the session in mongo
 const store = MongoStore.create({
@@ -65,18 +61,12 @@ let sessionOptions = {
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
-  // added cookie inside session for expiry time so user can logged in till 7 days since session dont hv expiry
   cookie: {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7*24*60*60*1000,
     httpOnly: true 
   }
 }
-
-// root directory
-// app.get('/',(req,res) => {
-//   res.send('root');
-// });
 
 app.use(session(sessionOptions));  // this creates a session id and stored inside cookie so user can been logged in in muiltiple pages 
 // for flash messsage
@@ -98,16 +88,6 @@ app.use((req,res,next) => {
   next();
 });
 
-// app.get('/demoUser',async (req,res) => {
-//   const fakeUser = new User({
-//     email: 'abc@gmail.com',
-//     username: 'student',
-//   });
-
-//   const registeredUser = await User.register(fakeUser,"helloworld");
-//   res.send(registeredUser);
-// })
-
 // bcoz after deployng its redirect to / we dont need that  
 app.get('/', (req, res) => {
   res.redirect('/listings');
@@ -125,31 +105,9 @@ app.get('/flights',(req,res) => {
   res.render('./flights/home.ejs');
 })
 
-// 1 data is sved in database
-// app.get('/testListing', async (req,res) => {
-//   const newListing = new Listing({
-//     title: 'My new villa',
-//     desc: 'Near beach',
-//     price: 18000,
-//     location: 'Delhi',
-//     country: 'India',
-//   });
-//   await newListing.save();
-
-//   console.log('new list added');
-//   res.send('new list added');
-// });
-
-// for all invalid routes        (error on this fn)
-// app.all("*",(req,res,next) => {
-//   next(new ExpressError(404,"Page not found"));
-// });
-
 app.use((err,req,res,next) => {
   let {status = 500,message = "Something error occured"} = err;
   res.status(status).render("error.ejs",{message});
-  // res.status(status).send(msg);
-  // res.send("Smtg went wrong");
 });
 
 app.listen(8080, () => {

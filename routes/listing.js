@@ -1,10 +1,10 @@
-// to read .env file values -> use dotenv module which is required
-if(process.env.NODE_ENV != 'production') {   // since .env contains all imp credentials so we dont use in produnction phase after deployment we dont want the user to see it
+if(process.env.NODE_ENV != 'production') {   
+  // since .env contains all imp credentials so we dont use in produnction phase after deployment we dont want the user to see it
   require('dotenv').config();
 }
                                                                    
 const express = require('express');
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 const wrapAsync = require('../utils/wrapAsync.js');
 const {validateListing,isLoggedIn, isOwner} = require('../middleware.js');
 const multer = require('multer');       // to upload files
@@ -13,28 +13,17 @@ const {storage} = require('../cloudConfig.js')
 const upload = multer({storage});       // stores img files indide cloudinary cloud
 
 const listingController = require('../controllers/listings.js');
-
-// get all data on ui (Index route)
-// wrap async we use to error handling simple way instead of using try catch
-// .index ia a fn which is inside controolers bcoz functionality part remains inside it
-// router.get('/', wrapAsync(listingController.index));
-
-// Aur agar tum /listings/new pe jaate ho, toh Express dono routes ko upar se neeche check karerouter.get('/listings/:id') upar likha hua hoga, toh Express "new" ko ek :id maan lega.Phir yeh hoga: Listing.findById("new") → aur tabhi error aata hai: "Cast to ObjectId failed"
+const Listing = require('../models/listing.js');
 
 //Hamesha specific/static routes (like /listings/new) ko upar rakho
 //aur dynamic routes (like /listings/:id) ko baad mein likho.
 
 router.route('/')           // multiple routes
   .get(wrapAsync(listingController.index))
-  // for new route we hv use enctype(send file to backend) 
-  //req.body -> dont return anything bcoz enctype ->we need to parse it for readble form by using multer-> req.file
   .post(isLoggedIn,upload.single('listing[image]'),validateListing, wrapAsync(listingController.createListing));
 
 // new route
-router.get('/new',isLoggedIn, listingController.newForm);    // for single route
-
-// to save the data in db (Create route)
-// router.post('/', isLoggedIn, validateListing, wrapAsync(listingController.createListing));
+router.get('/new',isLoggedIn, listingController.newForm);
 
 router.route('/:id')
   .get(wrapAsync(listingController.showListing))
@@ -44,16 +33,16 @@ router.route('/:id')
 // to edit the listing (Edit route)
 router.get('/:id/edit',isLoggedIn,isOwner,wrapAsync(listingController.editForm));
 
-// update route
-// router.put('/:id',isLoggedIn,validateListing,wrapAsync(listingController.editListing));    storing the same path inside single route
-
-// show specific only (Show route)
-// router.get('/:id',wrapAsync(listingController.showListing));
-
-// delete route
-// router.delete('/:id', isLoggedIn,isOwner, wrapAsync(listingController.destroyListing));
-
 // booking get route
-router.get('/:id/booking',listingController.showBooking);
+router.get('/:id/booking/payment',wrapAsync(listingController.showBooking));
+
+router.post("/:id/booking/payment",wrapAsync(listingController.makePayment));
+
+router.get("/:id/success",wrapAsync(listingController.showSuccessPayment));
+
+router.get(":id/cancel",wrapAsync((req,res) => {
+  req.flash("error","Payment cancel");
+  return res.redirect('/listings');
+}))
 
 module.exports = router;

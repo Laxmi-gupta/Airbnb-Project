@@ -1,46 +1,61 @@
-<div>
-  <div>
-    <h2>Confirm and Pay</h2>
-  </div>
-
-  <div>
-    <h4>Your Trip</h4>
-    <p>Dates</p>
-    <p><%= new Date(checkin).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) %> - <%= new Date(checkout).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })%></p>
-  </div>
-  <hr>
-  <div><h3>Ground rules</h3>
-    <p>We ask every guest to remember a few simple things about what makes a great guest.</p>
-    <ul>
-    <li>Follow the house rules</li>
-    <li>Treat your Host’s home like your own</li></ul>
-  </div>
-  <hr>
-
-  <div class="right">
-    <div class="card">
-      <div class="card-body">
-        <img src="<%= listing.image.url %>" alt="">
-        <h3><%= listing.title %></h3>
+<% layout('/layouts/boilerplate') %>
+<div class="container my-5">
+  <h2 class="fw-semibold mb-4">Request to Book</h2>
+  <div class="row g-4">
+    <div class="col-lg-7 col-md-12">
+      <div class="card shadow-sm rounded-4 p-4 mb-4">
+        <div class="mb-3">
+          <h4 class="fw-bold mb-3">Ground Rules</h4>
+          <p>We ask every guest to remember a few simple things that make a great guest:</p>
+          <ul class="ms-3">
+            <li>Follow the house rules</li>
+            <li>Treat your host's home like your own</li>
+          </ul>
+        </div>
         <hr>
-        <h4>Your total</h4>
-        <p><b>Price details</b></p>
-        <p><%= Math.round((new Date(checkout) - new Date(checkin))/ (1000 * 60 * 60 * 24)) %> nights x <%= listing.price %>      </p>
-        <hr>
-        <p><b>Total(INR)     </b></p>
+
+        <div>
+          <form action="/listings/<%= listing.id %>/booking/payment" method="post">
+            <h3>Pay with card</h3>
+            <input type="hidden" name="checkin" value="<%= checkin %>" />
+            <input type="hidden" name="checkout" value="<%= checkout %>" />
+            <button class="btn btn-danger w-25 py-3 mt-3 fw-bold">Confirm and pay</button>
+          </form>
+        </div>
       </div>
+    </div>
 
+    <div class="col-lg-5 col-md-12">
+      <div class="card  shadow-sm rounded-4 p-2">
+        <div class="d-flex mb-3">
+          <img src="<%= listing.image.url %>" alt="image" class="rounded-3 me-3" width="100" height="100" style="object-fit: cover;">
+          <div>
+            <h5 class="fw-bold mb-1"><%= listing.title %></h5>
+            <p class="text-muted mb-0"><%= listing.location %></p>
+            <p><%= new Date(checkin).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) %> - 
+              <%= new Date(checkout).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })%></p>
+          </div>
+          
+        </div>
+        
+        <div>
+          <h5 class="fw-bold">Price Details</h5>
+          <div class="d-flex justify-content-between mt-2">
+            <p><%= Math.round((new Date(checkout) - new Date(checkin))/ (1000 * 60 * 60 * 24)) %> nights x <%= listing.price %></p>
+            <p>₹<%= ((Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24))) * listing.price).toLocaleString('en-IN') %></p>
+          </div>
+          <div class="d-flex justify-content-between mt-1">
+            <span>Taxes</span>
+            <span>₹<%= Math.round((listing.price * 0.05)).toLocaleString('en-IN') %></span>
+          </div>
+
+        </div>
+
+        <div class="d-flex justify-content-between fw-bold">
+          <p>Total (INR)</p>
+          <p>₹<%= (((Math.round((new Date(checkout) - new Date(checkin)) / (1000 * 60 * 60 * 24))) * listing.price) + Math.round((listing.price * 0.05))).toLocaleString('en-IN') %></p>
+        </div>   
+      </div>   
     </div>
   </div>
-
-  <form action="">
-    <div>
-      <h3>Required for your trip</h3>
-      <p>Phone number
-      <button>Add</button> <br></p>   
-      <p>Add and confirm your phone number to get trip updates.</p>
-    </div>
-    
-    <button>Continue</button>
-  </form>
 </div>
