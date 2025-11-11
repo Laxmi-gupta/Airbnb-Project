@@ -18,7 +18,7 @@ const listingRouter = require('./routes/listing.js');     // express router simp
 const reviewRouter = require('./routes/review.js');
 const userRouter = require('./routes/user.js');
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlustNew";
+const MONGO_URL = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlustNew";
 
 main()
   .then(() => console.log("Connection succesfull"))
@@ -42,7 +42,6 @@ app.use(express.static(path.join(__dirname,'public')));
 
 // this stores the session in mongo
 const store = MongoStore.create({
-  // mongoUrl: dbUrl,
   mongoUrl: MONGO_URL,
   crypto: { 
     secret: process.env.SECRET,
