@@ -35,7 +35,7 @@ module.exports.index = async (req,res) => {
 
     // Step 4️⃣: Find bookings that overlap
     const bookedListings = await Booking.find({
-      $or: [
+      $and: [
         {
           checkin: { $lt: checkOutDate },
           checkout: { $gt: checkInDate },
@@ -50,6 +50,11 @@ module.exports.index = async (req,res) => {
     allListings = allListings.filter(
       l => !bookedListingIds.includes(l._id.toString())
     );
+  }
+
+   if (allListings.length === 0) {
+    req.flash("error", "No listings available for the selected dates or location.");
+    return res.redirect("/listings");
   }
 
   res.render("listings/index.ejs", {allListings}); 
@@ -185,7 +190,6 @@ module.exports.makePayment = async (req, res) => {
       cancel_url:  `${process.env.DOMAIN}/listings/${id}/cancel`
     })
     //console.log(session);
-    res.redirect(session.url);
 
     const booking = new Booking({
       listing: id,
@@ -197,6 +201,8 @@ module.exports.makePayment = async (req, res) => {
     })
 
     await booking.save();
+
+    return res.redirect(session.url);
 }
 
 module.exports.showSuccessPayment = async(req,res) => {

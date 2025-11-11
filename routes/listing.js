@@ -36,7 +36,7 @@ router.get('/:id/edit',isLoggedIn,isOwner,wrapAsync(listingController.editForm))
 // booking get route
 router.get('/:id/booking/payment',wrapAsync(listingController.showBooking));
 
-router.post("/:id/booking/payment",wrapAsync(listingController.makePayment));
+router.post("/:id/booking/payment",isLoggedIn,wrapAsync(listingController.makePayment));
 
 router.get("/:id/success",wrapAsync(listingController.showSuccessPayment));
 
