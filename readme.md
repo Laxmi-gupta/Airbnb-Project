@@ -26,25 +26,25 @@ A full-featured Airbnb Clone built with **Node.js, Express, MongoDB, and EJS**, 
 
 ## Environment Variables
 
-# Cloudinary configuration
+### Cloudinary configuration
 CLOUD_NAME=your_cloud_name
 CLOUD_API_KEY=your_cloud_api_key
 CLOUD_API_SECRET=your_cloud_api_secret
 
-# Map API
+### Map API
 MAP_API_KEY=your_mapbox_api_key
 
-# Stripe configuration
+### Stripe configuration
 STRIPE_SECRET_KEY=your_stripe_secret_key
 STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 
-# Domain
+### Domain
 DOMAIN=http://localhost:8000/listings
 
-# MongoDB Atlas connection
+### MongoDB Atlas connection
 ATLASDB_URL=your_mongodb_atlas_connection_string
 
-# Session secret
+### Session secret
 SECRET=your_session_secret
 
 ## Installation & Setup
