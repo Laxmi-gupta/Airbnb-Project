@@ -52,6 +52,7 @@ SECRET=your_session_secret
 ### Clone the repository
 
 git clone https://github.com/your-username/Airbnb-Project.git
+
 cd Airbnb-Project
 
 ### Install dependencies
